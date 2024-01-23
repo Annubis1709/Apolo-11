@@ -51,7 +51,7 @@ if __name__ == '__main__':
     base_path = os.path.dirname(os.path.abspath(__file__))  # Directorio raíz del proyecto
     components = ['satellite', 'spacesuit', 'vehicle']
 
-    data_generator = DataGenerator(os.path.join(base_path, '../er/apolo-11/devices'))
+    data_generator = DataGenerator(os.path.join(base_path, 'devices'))
     file_manager = FileManager(base_path)
     report_generator = ReportGenerator(os.path.join(base_path, 'reports'))
     control_dashboard = ControlDashboard(report_generator.storage_path)
