@@ -8,18 +8,13 @@ import shutil
 
 class ReportGenerator:
     def __init__(self, devices_path, backup_path, reports_path):
-        self.storage_path = None
         self.devices_path = devices_path
         self.backup_path = backup_path
         self.reports_path = reports_path
-        self.data_path = os.path.join(devices_path, '..')  # Agregado para acceder al directorio de datos
 
-        if not os.path.exists(self.devices_path):
-            os.makedirs(self.devices_path)
-        if not os.path.exists(self.backup_path):
-            os.makedirs(self.backup_path)
-        if not os.path.exists(self.reports_path):
-            os.makedirs(self.reports_path)
+        for path in [self.devices_path, self.backup_path, self.reports_path]:
+            if not os.path.exists(path):
+                os.makedirs(path)
 
     def generate_reports(self, cycle_id):
         # Generar nombre de archivo de informe estándar

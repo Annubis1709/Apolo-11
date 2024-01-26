@@ -17,9 +17,6 @@ if __name__ == '__main__':
     file_manager = FileManager(base_path)
     report_generator = ReportGenerator(devices_path, backup_path, reports_path)
     simulation = Apolo11Simulation(data_generator, file_manager, report_generator)
-    # control_dashboard = ControlDashboard(os.path.join(base_path, 'reports'))
-
-    simulation = Apolo11Simulation(data_generator, file_manager, report_generator)
 
     # Iniciar la simulación en un hilo separado.
     simulation.run()
@@ -27,5 +24,11 @@ if __name__ == '__main__':
     # En algún momento posterior, se podrá detener la simulación.
     simulation.stop_simulation()
 
-    # Mostrar el dashboard
-    #control_dashboard.display_dashboard()
+    control_dashboard = ControlDashboard(reports_path)
+    control_dashboard.display_dashboard()
+
+
+
+
+
+
