@@ -1,3 +1,4 @@
+# FileManager.py
 import os
 import shutil
 
@@ -8,7 +9,7 @@ class FileManager:
         self.devices_path = os.path.join(base_path, 'devices')
         self.backup_path = os.path.join(base_path, 'backups')
 
-        # Crea los directorios devices y backups si no existen
+        # Crea los directorios devices y backups  si no existen
         for path in [self.devices_path, self.backup_path]:
             if not os.path.exists(path):
                 os.makedirs(path)
@@ -16,4 +17,7 @@ class FileManager:
     def move_to_backup(self, filename):
         src_path = os.path.join(self.devices_path, filename)
         dst_path = os.path.join(self.backup_path, filename)
-        shutil.move(src_path, dst_path)
+        try:
+            shutil.move(src_path, dst_path)
+        except Exception as e:
+            print(f"No se pudo mover el archivo {filename} a la carpeta backup: {e}")

@@ -1,5 +1,6 @@
-import json
+# ControlDashboard.py
 import os
+import json
 
 
 class ControlDashboard:
@@ -7,7 +8,6 @@ class ControlDashboard:
         self.report_path = report_path
 
     def display_dashboard(self):
-        # Este método debe ampliarse para mostrar un panel significativo
         report_files = [f for f in os.listdir(self.report_path) if f.endswith(".json")]
 
         if not report_files:
