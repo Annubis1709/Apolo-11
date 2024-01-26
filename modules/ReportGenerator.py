@@ -23,7 +23,7 @@ class ReportGenerator:
 
     def generate_reports(self, cycle_id):
         # Generar nombre de archivo de informe estándar
-        report_filename = f'APLSTATS-REPORT-{datetime.datetime.now().strftime("%d%m%y%H%M%S")}.log'
+        report_filename = f'APLSTATS-REPORTE-{datetime.datetime.now().strftime("%d%m%y%H%M%S")}.log'
 
         # Analiza eventos, gestiona desconexiones, consolida misiones, calcula porcentajes
         analysis_data = self.analyze_and_manage()
@@ -52,7 +52,7 @@ class ReportGenerator:
     def analyze_events(self):
         events_analysis_data = {}
 
-        # Get all the generated log files
+        # Obtiene todos los archivos log generados
         log_files = glob.glob(os.path.join(self.devices_path, '*.log'))
 
         # Obtiene todos los archivos log generados
@@ -161,4 +161,4 @@ class ReportGenerator:
 
     def generate_dashboard(self, analysis_data, cycle_id):
         with open(self.dashboard_filepath, 'w') as dashboard_file:
-            dashboard_file.write("Marcador de posición para el contenido del panel")
+            dashboard_file.write("Contenido del panel aquí")

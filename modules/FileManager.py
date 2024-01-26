@@ -1,4 +1,5 @@
 # FileManager.py
+import logging
 import os
 import shutil
 
@@ -20,4 +21,4 @@ class FileManager:
         try:
             shutil.move(src_path, dst_path)
         except Exception as e:
-            print(f"No se pudo mover el archivo {filename} a la carpeta backup: {e}")
+            logging.error(f"No se pudo mover el archivo {filename} al directorio backup: {e}")
