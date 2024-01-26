@@ -16,6 +16,10 @@ class ReportGenerator:
             if not os.path.exists(path):
                 os.makedirs(path)
 
+    @property
+    def dashboard_filepath(self):
+        return os.path.join(self.reports_path, 'Dashboard.txt')
+
     def generate_reports(self, cycle_id):
         # Generar nombre de archivo de informe estándar
         report_filename = f'APLSTATS-REPORTE-{datetime.datetime.now().strftime("%d%m%y%H%M%S")}.log'
@@ -54,7 +58,6 @@ class ReportGenerator:
         for log_file in log_files:
             with open(log_file, 'r') as file:
                 data = json.load(file)
-
                 mission = data['mission']
                 device_type = data['device_type']
                 device_status = data['device_status']
@@ -150,10 +153,8 @@ class ReportGenerator:
             dst_path = os.path.join(self.backup_path, filename)
             shutil.move(file_path, dst_path)
 
-    @property
-    def dashboard_filepath(self):
-        return os.path.join(self.reports_path, 'Dashboard.txt')
-
     def generate_dashboard(self, analysis_data, cycle_id):
         with open(self.dashboard_filepath, 'w') as dashboard_file:
-            dashboard_file.write("Contenido del panel aquí")
+            dashboard_file.write("Dashboard:\n")
+            for key, value in analysis_data.items():
+                dashboard_file.write(f"{key}: {value}\n")
