@@ -16,23 +16,23 @@ class DataGenerator:
         self.storage_path = storage_path
         if not os.path.exists(self.storage_path):
             os.makedirs(self.storage_path)
+        self.device_types = ["Satélite", "Nave", "Traje", "Vehículo espacial"]
 
     def generate_data_log(self, mission_code, cycle_id):
         timestamp = datetime.datetime.now().strftime("%d%m%y%H%M%S")
         status_choices = ['excellent', 'good', 'warning', 'faulty', 'killed', 'unknown']
 
-        # Determine aleatoriamente la cantidad de archivos a generar para cada misión.
         num_files = random.randint(1, 100)
 
         for i in range(num_files):
+            device_type = random.choice(self.device_types)  # Se elige aleatoriamente un tipo de dispositivo
             device_status = random.choice(status_choices)
             data = {
                 'date': timestamp,
                 'mission': mission_code,
-                'device_type': 'device_' + str(i),
+                'device_type': device_type,  # Se asigna el tipo de dispositivo aleatorio
                 'device_status': device_status,
-                'hash': generate_hash(timestamp, mission_code, 'device_' + str(i),
-                                      device_status) if mission_code != 'UNKN' else 'unknown'
+                'hash': generate_hash(timestamp, mission_code, device_type, device_status)
             }
             filename = f'APL{mission_code}-{cycle_id:04d}{i:03d}.log'
             self.save_data(filename, data)

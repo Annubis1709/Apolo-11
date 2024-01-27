@@ -153,8 +153,50 @@ class ReportGenerator:
             dst_path = os.path.join(self.backup_path, filename)
             shutil.move(file_path, dst_path)
 
-    def generate_dashboard(self, analysis_data, cycle_id):
+    """def generate_dashboard(self, analysis_data, cycle_id):
         with open(self.dashboard_filepath, 'w') as dashboard_file:
             dashboard_file.write("Dashboard:\n")
             for key, value in analysis_data.items():
-                dashboard_file.write(f"{key}: {value}\n")
+                dashboard_file.write(f"{key}: {value}\n")"""
+
+    # Testing
+    def generate_dashboard(self, analysis_data, cycle_id):
+        with open(self.dashboard_filepath, 'w') as dashboard_file:
+            dashboard_file.write("# Análisis de eventos\n")
+            dashboard_file.write("# Misión | Tipo | Estado | Cantidad\n")
+            dashboard_file.write("------- | -------- | -------- | --------\n")
+            for mission, devices in analysis_data['events_analysis'].items():
+                for device_type, state_counts in devices.items():
+                    for state, count in state_counts.items():
+                        dashboard_file.write(f"{mission} | {device_type} | {state} | {count}\n")
+
+            dashboard_file.write("\n# Gestión de desconexiones\n")
+            dashboard_file.write("# Misión | Tipo | Cantidad de desconexiones\n")
+            dashboard_file.write("------- | -------- | --------\n")
+            for mission, disconnected_devices in analysis_data['disconnection_management'].items():
+                for device in disconnected_devices:
+                    dashboard_file.write(f"{mission} | {device['device_type']} | {device['unknown_count']}\n")
+
+            dashboard_file.write("\n# Consolidación de misiones\n")
+            dashboard_file.write("# Misión | Cantidad de dispositivos\n")
+            dashboard_file.write("------- | --------\n")
+            for device_type, count in analysis_data['consolidation'].items():
+                dashboard_file.write(f"{device_type} | {count}\n")
+
+            dashboard_file.write("\n# Porcentajes\n")
+            dashboard_file.write("# Misión | Tipo | Porcentaje\n")
+            dashboard_file.write("------- | -------- | --------\n")
+            for mission, devices in analysis_data['percentage_calculation'].items():
+                for device_type, percentage_data in devices.items():
+                    for state, percentage in percentage_data.items():
+                        dashboard_file.write(f"{mission} | {device_type} | {state} | {percentage:.2f}%\n")
+
+
+def analyze_and_manage(self):
+    analysis_data = {
+        'events_analysis': self.analyze_events(),
+        'disconnection_management': self.manage_disconnections(),
+        'consolidation': self.consolidate_missions(),
+        'percentage_calculation': self.calculate_percentages()
+    }
+    return analysis_data

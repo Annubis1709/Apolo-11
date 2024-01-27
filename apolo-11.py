@@ -13,9 +13,12 @@ if __name__ == '__main__':
     backup_path = os.path.join(base_path, 'backups')
     reports_path = os.path.join(base_path, 'reports')
 
+    device_types = ["Satélite", "Nave", "Traje", "Vehículo espacial"]
+
     data_generator = DataGenerator(devices_path)
     file_manager = FileManager(base_path)
     report_generator = ReportGenerator(devices_path, backup_path, reports_path)
+
     simulation = Apolo11Simulation(data_generator, file_manager, report_generator)
 
     # Iniciar la simulación en un hilo separado.

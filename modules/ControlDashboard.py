@@ -10,9 +10,9 @@ class ControlDashboard:
     def display_dashboard(self):
         report_files = [f for f in os.listdir(self.report_path) if f.endswith(".json")]
 
-        if not report_files:
+        """if not report_files:
             print("No hay informes disponibles. El tablero está vacío.")
-            return
+            return"""
 
         for report_file in report_files:
             report_filepath = os.path.join(self.report_path, report_file)
