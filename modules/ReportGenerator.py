@@ -150,37 +150,59 @@ class ReportGenerator:
             dst_path = os.path.join(self.backup_path, filename)
             shutil.move(file_path, dst_path)
 
-    # Testing
     def generate_dashboard(self, analysis_data, cycle_id):
         dashboard_filename = 'Dashboard.md'
         dashboard_filepath = os.path.join(self.reports_path, dashboard_filename)
 
-        with open(dashboard_filepath, 'w') as dashboard_file:
-            dashboard_file.write("# Análisis de Eventos\n")
-            dashboard_file.write("| Misión | Tipo de Dispositivo | Estado | Cantidad |\n")
-            dashboard_file.write("| ------ | ------------------- | ------ | -------- |\n")
+        # Abrir el archivo Dashboard.md para agregar análisis
+        with open(dashboard_filepath, 'a') as dashboard_file:
+            dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
+
+            # Escribir análisis de eventos
+            dashboard_file.write("\n## Análisis de Eventos\n")
+            dashboard_file.write(
+                "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+            dashboard_file.write(
+                "<tr><th style='border: 2px solid black;'>Misión</th><th style='border: 2px solid black;'>Tipo de Dispositivo</th><th style='border: 2px solid black;'>Estado</th><th style='border: 2px solid black;'>Cantidad</th></tr>\n")
             for mission, devices in analysis_data['events_analysis'].items():
                 for device_type, state_counts in devices.items():
                     for state, count in state_counts.items():
-                        dashboard_file.write(f"| {mission} | {device_type} | {state} | {count} |\n")
+                        dashboard_file.write(
+                            f"<tr><td style='border: 2px solid black;'>{mission}</td><td style='border: 2px solid black;'>{device_type}</td><td style='border: 2px solid black;'>{state}</td><td style='border: 2px solid black;'>{count}</td></tr>\n")
+            dashboard_file.write("</table>\n")
 
-            dashboard_file.write("\n# Gestión de Desconexiones\n")
-            dashboard_file.write("| Misión | Tipo de Dispositivo | Cantidad de Desconexiones |\n")
-            dashboard_file.write("| ------ | ------------------- | ------------------------- |\n")
+            # Escribir gestión de desconexiones
+            dashboard_file.write("\n## Gestión de Desconexiones\n")
+            dashboard_file.write(
+                "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+            dashboard_file.write(
+                "<tr><th style='border: 2px solid black;'>Misión</th><th style='border: 2px solid black;'>Tipo de Dispositivo</th><th style='border: 2px solid black;'>Cantidad de Desconexiones</th></tr>\n")
             for mission, disconnected_devices in analysis_data['disconnection_management'].items():
                 for device in disconnected_devices:
-                    dashboard_file.write(f"| {mission} | {device['device_type']} | {device['unknown_count']} |\n")
+                    dashboard_file.write(
+                        f"<tr><td style='border: 2px solid black;'>{mission}</td><td style='border: 2px solid black;'>{device['device_type']}</td><td style='border: 2px solid black;'>{device['unknown_count']}</td></tr>\n")
+            dashboard_file.write("</table>\n")
 
-            dashboard_file.write("\n# Consolidación de Misiones\n")
-            dashboard_file.write("| Tipo de Dispositivo | Cantidad de Dispositivos |\n")
-            dashboard_file.write("| ------------------- | ------------------------ |\n")
+            # Escribir consolidación de misiones
+            dashboard_file.write("\n## Consolidación de Misiones\n")
+            dashboard_file.write(
+                "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+            dashboard_file.write(
+                "<tr><th style='border: 2px solid black;'>Tipo de Dispositivo</th><th style='border: 2px solid black;'>Cantidad de Dispositivos</th></tr>\n")
             for device_type, count in analysis_data['consolidation'].items():
-                dashboard_file.write(f"| {device_type} | {count} |\n")
+                dashboard_file.write(
+                    f"<tr><td style='border: 2px solid black;'>{device_type}</td><td style='border: 2px solid black;'>{count}</td></tr>\n")
+            dashboard_file.write("</table>\n")
 
-            dashboard_file.write("\n# Porcentajes\n")
-            dashboard_file.write("| Misión | Tipo de Dispositivo | Estado | Porcentaje |\n")
-            dashboard_file.write("| ------ | ------------------- | ------ | ---------- |\n")
+            # Escribir porcentajes
+            dashboard_file.write("\n## Porcentajes\n")
+            dashboard_file.write(
+                "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+            dashboard_file.write(
+                "<tr><th style='border: 2px solid black;'>Misión</th><th style='border: 2px solid black;'>Tipo de Dispositivo</th><th style='border: 2px solid black;'>Estado</th><th style='border: 2px solid black;'>Porcentaje</th></tr>\n")
             for mission, devices in analysis_data['percentage_calculation'].items():
                 for device_type, percentage_data in devices.items():
                     for state, percentage in percentage_data.items():
-                        dashboard_file.write(f"| {mission} | {device_type} | {state} | {percentage:.2f}% |\n")
+                        dashboard_file.write(
+                            f"<tr><td style='border: 2px solid black;'>{mission}</td><td style='border: 2px solid black;'>{device_type}</td><td style='border: 2px solid black;'>{state}</td><td style='border: 2px solid black;'>{percentage:.2f}%</td></tr>\n")
+            dashboard_file.write("</table>\n")
