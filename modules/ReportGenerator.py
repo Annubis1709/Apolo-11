@@ -18,7 +18,7 @@ class ReportGenerator:
 
     @property
     def dashboard_filepath(self):
-        return os.path.join(self.reports_path, 'Dashboard.txt')
+        return os.path.join(self.reports_path, 'Dashboard.md')  # Cambiado a extensión Markdown
 
     def generate_reports(self, cycle_id):
         # Generar nombre de archivo de informe estándar
@@ -161,35 +161,38 @@ class ReportGenerator:
 
     # Testing
     def generate_dashboard(self, analysis_data, cycle_id):
-        with open(self.dashboard_filepath, 'w') as dashboard_file:
-            dashboard_file.write("# Análisis de eventos\n")
-            dashboard_file.write("# Misión | Tipo | Estado | Cantidad\n")
-            dashboard_file.write("------- | -------- | -------- | --------\n")
+        dashboard_filename = 'Dashboard.md'
+        dashboard_filepath = os.path.join(self.reports_path, dashboard_filename)
+
+        with open(dashboard_filepath, 'w') as dashboard_file:
+            dashboard_file.write("# Análisis de Eventos\n")
+            dashboard_file.write("| Misión | Tipo de Dispositivo | Estado | Cantidad |\n")
+            dashboard_file.write("| ------ | ------------------- | ------ | -------- |\n")
             for mission, devices in analysis_data['events_analysis'].items():
                 for device_type, state_counts in devices.items():
                     for state, count in state_counts.items():
-                        dashboard_file.write(f"{mission} | {device_type} | {state} | {count}\n")
+                        dashboard_file.write(f"| {mission} | {device_type} | {state} | {count} |\n")
 
-            dashboard_file.write("\n# Gestión de desconexiones\n")
-            dashboard_file.write("# Misión | Tipo | Cantidad de desconexiones\n")
-            dashboard_file.write("------- | -------- | --------\n")
+            dashboard_file.write("\n# Gestión de Desconexiones\n")
+            dashboard_file.write("| Misión | Tipo de Dispositivo | Cantidad de Desconexiones |\n")
+            dashboard_file.write("| ------ | ------------------- | ------------------------- |\n")
             for mission, disconnected_devices in analysis_data['disconnection_management'].items():
                 for device in disconnected_devices:
-                    dashboard_file.write(f"{mission} | {device['device_type']} | {device['unknown_count']}\n")
+                    dashboard_file.write(f"| {mission} | {device['device_type']} | {device['unknown_count']} |\n")
 
-            dashboard_file.write("\n# Consolidación de misiones\n")
-            dashboard_file.write("# Misión | Cantidad de dispositivos\n")
-            dashboard_file.write("------- | --------\n")
+            dashboard_file.write("\n# Consolidación de Misiones\n")
+            dashboard_file.write("| Tipo de Dispositivo | Cantidad de Dispositivos |\n")
+            dashboard_file.write("| ------------------- | ------------------------ |\n")
             for device_type, count in analysis_data['consolidation'].items():
-                dashboard_file.write(f"{device_type} | {count}\n")
+                dashboard_file.write(f"| {device_type} | {count} |\n")
 
             dashboard_file.write("\n# Porcentajes\n")
-            dashboard_file.write("# Misión | Tipo | Porcentaje\n")
-            dashboard_file.write("------- | -------- | --------\n")
+            dashboard_file.write("| Misión | Tipo de Dispositivo | Estado | Porcentaje |\n")
+            dashboard_file.write("| ------ | ------------------- | ------ | ---------- |\n")
             for mission, devices in analysis_data['percentage_calculation'].items():
                 for device_type, percentage_data in devices.items():
                     for state, percentage in percentage_data.items():
-                        dashboard_file.write(f"{mission} | {device_type} | {state} | {percentage:.2f}%\n")
+                        dashboard_file.write(f"| {mission} | {device_type} | {state} | {percentage:.2f}% |\n")
 
 
 def analyze_and_manage(self):

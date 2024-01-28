@@ -25,7 +25,7 @@ if __name__ == '__main__':
     simulation.run()
 
     # En algún momento posterior, se podrá detener la simulación.
-    simulation.stop_simulation()
+    #simulation.stop_simulation()
 
     control_dashboard = ControlDashboard(reports_path)
     control_dashboard.display_dashboard()
