@@ -22,7 +22,7 @@ class DataGenerator:
         timestamp = datetime.datetime.now().strftime("%d%m%y%H%M%S")
         status_choices = ['excellent', 'good', 'warning', 'faulty', 'killed', 'unknown']
 
-        num_files = random.randint(1, 10)
+        num_files = random.randint(1, 100)
 
         for i in range(num_files):
             device_type = random.choice(self.device_types)  # Se elige aleatoriamente un tipo de dispositivo

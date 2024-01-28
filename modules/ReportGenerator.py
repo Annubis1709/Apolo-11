@@ -37,14 +37,11 @@ class ReportGenerator:
         self.generate_dashboard(analysis_data, cycle_id)
 
     def analyze_and_manage(self):
-        analysis_data = {'events_analysis': self.analyze_events(),  # a) Analyze events - contar eventos por estado
-                         # para cada misión y dispositivo
-                         'disconnection_management': self.manage_disconnections(),  # b) Manage disconnections -
-                         # identificar dispositivos con un mayor número de "unknown"
-                         'consolidation': self.consolidate_missions(),  # c) Consolidate missions - Cuenta los
-                         # dispositivos inoperables en todas las misiones
-                         'percentage_calculation': self.calculate_percentages()}  # d) Calculate percentages - Calcula
-        # porcentajes de datos generados para cada dispositivo y misión
+        analysis_data = {
+            'events_analysis': self.analyze_events(),  # a) Analyze events - cuenta eventos por estado para cada misión y dispositivo
+            'disconnection_management': self.manage_disconnections(),  # b) Manage disconnections - identifica dispositivos con un mayor número de "unknown"
+            'consolidation': self.consolidate_missions(),  # c) Consolidate missions - Cuenta los dispositivos inoperables en todas las misiones
+            'percentage_calculation': self.calculate_percentages()}  # d) Calculate percentages - Calcula porcentajes de datos generados para cada dispositivo y misión
 
         return analysis_data
 
@@ -88,7 +85,7 @@ class ReportGenerator:
                 unknown_count = state_counts.get('unknown', 0)
 
                 # Definir un umbral para considerar un dispositivo desconectado
-                disconnection_threshold = 10
+                disconnection_threshold = 1
 
                 if unknown_count > disconnection_threshold:
                     # Registra el dispositivo como si tuviera un mayor número de estados "unknown"
@@ -153,12 +150,6 @@ class ReportGenerator:
             dst_path = os.path.join(self.backup_path, filename)
             shutil.move(file_path, dst_path)
 
-    """def generate_dashboard(self, analysis_data, cycle_id):
-        with open(self.dashboard_filepath, 'w') as dashboard_file:
-            dashboard_file.write("Dashboard:\n")
-            for key, value in analysis_data.items():
-                dashboard_file.write(f"{key}: {value}\n")"""
-
     # Testing
     def generate_dashboard(self, analysis_data, cycle_id):
         dashboard_filename = 'Dashboard.md'
@@ -193,13 +184,3 @@ class ReportGenerator:
                 for device_type, percentage_data in devices.items():
                     for state, percentage in percentage_data.items():
                         dashboard_file.write(f"| {mission} | {device_type} | {state} | {percentage:.2f}% |\n")
-
-
-def analyze_and_manage(self):
-    analysis_data = {
-        'events_analysis': self.analyze_events(),
-        'disconnection_management': self.manage_disconnections(),
-        'consolidation': self.consolidate_missions(),
-        'percentage_calculation': self.calculate_percentages()
-    }
-    return analysis_data
