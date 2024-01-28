@@ -1,5 +1,4 @@
 # apolo-11.py
-
 import os
 from modules.Apolo11Simulation import Apolo11Simulation
 from modules.DataGenerator import DataGenerator
@@ -8,7 +7,7 @@ from modules.ReportGenerator import ReportGenerator
 from modules.ControlDashboard import ControlDashboard
 
 if __name__ == '__main__':
-    base_path = os.path.dirname(os.path.abspath(__file__))  # Directorio raíz del proyecto
+    base_path = os.path.dirname(os.path.abspath(__file__)) # Project root directory
     devices_path = os.path.join(base_path, 'devices')
     backup_path = os.path.join(base_path, 'backups')
     reports_path = os.path.join(base_path, 'reports')
@@ -19,11 +18,11 @@ if __name__ == '__main__':
 
     simulation = Apolo11Simulation(data_generator, file_manager, report_generator)
 
-    # Iniciar la simulación en un hilo separado.
+    # Start the simulation in a separate thread.
     simulation.run()
 
-    # En algún momento posterior, se podrá detener la simulación.
-    #simulation.stop_simulation()
+    # At some point later, the simulation can be stopped.
+    # simulation.stop_simulation()
 
     control_dashboard = ControlDashboard(reports_path)
     control_dashboard.display_dashboard()

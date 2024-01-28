@@ -1,10 +1,8 @@
-# modules/ReportGenerator.py
 import datetime
 import glob
 import json
 import os
 import shutil
-
 
 class ReportGenerator:
     def __init__(self, devices_path, backup_path, reports_path):
@@ -18,7 +16,7 @@ class ReportGenerator:
 
     @property
     def dashboard_filepath(self):
-        return os.path.join(self.reports_path, 'Dashboard.md')  # Changed to Markdown extension
+        return os.path.join(self.reports_path, 'Dashboard.md') # Changed to Markdown extension
 
     def generate_reports(self, cycle_id):
         # Generate standard report filename
@@ -155,63 +153,18 @@ class ReportGenerator:
         dashboard_filepath = os.path.join(self.reports_path, dashboard_filename)
 
         with open(dashboard_filepath, 'a') as dashboard_file:
-            self.write_header(dashboard_file, cycle_id)
-            self.write_events_analysis(dashboard_file, analysis_data['events_analysis'])
-            self.write_disconnection_management(dashboard_file, analysis_data['disconnection_management'])
-            self.write_consolidation(dashboard_file, analysis_data['consolidation'])
-            self.write_percentages(dashboard_file, analysis_data['percentage_calculation'])
+            dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
 
-    def write_header(self, dashboard_file, cycle_id):
-        dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
+            sections = [
+                ("Análisis de Eventos", self.generate_events_section, analysis_data['events_analysis']),
+                ("Gestión de Desconexiones", self.generate_disconnection_section, analysis_data['disconnection_management']),
+                ("Consolidación de Misiones", self.generate_consolidation_section, analysis_data['consolidation']),
+                ("Porcentajes", self.generate_percentages_section, analysis_data['percentage_calculation'])
+            ]
 
-    def write_table_header(self, dashboard_file, headers):
-        dashboard_file.write(
-            "<tr>" + "".join([f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n")
-
-    def write_table_row(self, dashboard_file, row_data):
-        dashboard_file.write(
-            "<tr>" + "".join([f"<td style='border: 2px solid black;'>{data}</td>" for data in row_data]) + "</tr>\n")
-
-    def write_events_analysis(self, dashboard_file, events_analysis_data):
-        dashboard_file.write("\n## Análisis de Eventos\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"])
-        for mission, devices in events_analysis_data.items():
-            for device_type, state_counts in devices.items():
-                for state, count in state_counts.items():
-                    self.write_table_row(dashboard_file, [mission, device_type, state, str(count)])
-        dashboard_file.write("</table>\n")
-
-    def write_disconnection_management(self, dashboard_file, disconnection_management_data):
-        dashboard_file.write("\n## Gestión de Desconexiones\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"])
-        for mission, disconnected_devices in disconnection_management_data.items():
-            for device in disconnected_devices:
-                self.write_table_row(dashboard_file, [mission, device['device_type'], str(device['unknown_count'])])
-        dashboard_file.write("</table>\n")
-
-    def write_consolidation(self, dashboard_file, consolidation_data):
-        dashboard_file.write("\n## Consolidación de Misiones\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Tipo de Dispositivo", "Cantidad de Dispositivos"])
-        for device_type, count in consolidation_data.items():
-            self.write_table_row(dashboard_file, [device_type, str(count)])
-        dashboard_file.write("</table>\n")
-
-    def write_percentages(self, dashboard_file, percentage_calculation_data):
-        dashboard_file.write("\n## Porcentajes\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"])
-        for mission, devices in percentage_calculation_data.items():
-            for device_type, percentage_data in devices.items():
-                for state, percentage in percentage_data.items():
-                    self.write_table_row(dashboard_file, [mission, device_type, state, f"{percentage:.2f}%"])
-        dashboard_file.write("</table>\n")
+            for title, generate_section, data in sections:
+                dashboard_file.write(f"\n## {title}\n")
+                dashboard_file.write(generate_section(data))
 
     def generate_events_section(self, data):
         headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]

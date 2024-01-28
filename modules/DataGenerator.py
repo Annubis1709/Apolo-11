@@ -1,4 +1,4 @@
-# DataGenerator.py
+# modules/DataGenerator.py
 import random
 import hashlib
 import datetime
@@ -25,12 +25,12 @@ class DataGenerator:
         num_files = random.randint(1, 100)
 
         for i in range(num_files):
-            device_type = random.choice(self.device_types)  # Se elige aleatoriamente un tipo de dispositivo
+            device_type = random.choice(self.device_types)  # Randomly select a device type
             device_status = random.choice(status_choices)
             data = {
                 'date': timestamp,
                 'mission': mission_code,
-                'device_type': device_type,  # Se asigna el tipo de dispositivo aleatorio
+                'device_type': device_type,  # Assign the random device type
                 'device_status': device_status,
                 'hash': generate_hash(timestamp, mission_code, device_type, device_status)
             }
