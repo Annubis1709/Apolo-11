@@ -7,7 +7,15 @@ import shutil
 
 
 class ReportGenerator:
+    """
+    Esta clase representa el generador de informes de la simulación de Apollo 11.
+    Se encarga de analizar los eventos, gestionar las desconexiones, consolidar las misiones y calcular los porcentajes.
+    """
     def __init__(self, devices_path, backup_path, reports_path):
+        """
+        Inicializa el generador de informes con las rutas a los directorios de dispositivos, copias de seguridad y reportes.
+        Crea los directorios de dispositivos, copias de seguridad y reportes si no existen.
+        """
         self.devices_path = devices_path
         self.backup_path = backup_path
         self.reports_path = reports_path
@@ -18,25 +26,34 @@ class ReportGenerator:
 
     @property
     def dashboard_filepath(self):
+        """
+        Devuelve la ruta al archivo del panel de control.
+        """
         return os.path.join(self.reports_path, 'Dashboard.md')  # Changed to Markdown extension
 
     def generate_reports(self, cycle_id):
-        # Generate standard report filename
+        """
+        Genera los informes para un ciclo de simulación.
+        """
+        # Genera el nombre del archivo de informe estándar
         report_filename = f'APLSTATS-REPORTE-{datetime.datetime.now().strftime("%d%m%y%H%M%S")}.log'
 
-        # Analyze events, manage disconnections, consolidate missions, calculate percentages
+        # Analiza los eventos, gestiona las desconexiones, consolida las misiones y calcula los porcentajes
         analysis_data = self.analyze_and_manage()
 
-        # Save the report
+        # Guarda el informe
         self.save_report(report_filename, analysis_data)
 
-        # Move processed files to backup
+        # Mueve los archivos procesados a la copia de seguridad (backup)
         self.move_processed_files_to_backup()
 
-        # Generate dashboard
+        # # Genera el panel de control (dashboard)
         self.generate_dashboard(analysis_data, cycle_id)
 
     def analyze_and_manage(self):
+        """
+        Analiza los eventos, gestiona las desconexiones, consolida las misiones y calcula los porcentajes.
+        """
         analysis_data = {
             'events_analysis': self.analyze_events(),
             'disconnection_management': self.manage_disconnections(),
@@ -46,12 +63,15 @@ class ReportGenerator:
         return analysis_data
 
     def analyze_events(self):
+        """
+        Analiza los eventos de los archivos de log.
+        """
         events_analysis_data = {}
 
-        # Get all generated log files
+        # Obtiene todos los archivos de log generados
         log_files = glob.glob(os.path.join(self.devices_path, '*.log'))
 
-        # Get all generated log files
+        # Analiza cada archivo de log
         for log_file in log_files:
             with open(log_file, 'r') as file:
                 data = json.load(file)
@@ -59,36 +79,39 @@ class ReportGenerator:
                 device_type = data['device_type']
                 device_status = data['device_status']
 
-                # Initialize the event count for the mission if not present
+                # Inicializa el recuento de eventos para la misión si no está presente
                 if mission not in events_analysis_data:
                     events_analysis_data[mission] = {}
 
-                # Initialize the event count for the device if not present
+                # Inicializa el recuento de eventos para el dispositivo si no está presente
                 if device_type not in events_analysis_data[mission]:
                     events_analysis_data[mission][device_type] = {'excellent': 0, 'good': 0, 'warning': 0, 'faulty': 0,
                                                                   'killed': 0, 'unknown': 0}
 
-                # Increment the count for the specific state.
+                # Incrementa el recuento para el estado específico.
                 events_analysis_data[mission][device_type][device_status] += 1
 
         return events_analysis_data
 
     def manage_disconnections(self):
+        """
+        Gestiona las desconexiones de los dispositivos.
+        """
         disconnection_management_data = {}
 
-        # Call the analyze_events function to get event analysis data
+        # Llama a la función analyze_events para obtener los datos de análisis de eventos
         events_analysis_data = self.analyze_events()
 
-        # Identify devices with a higher number of "unknown" states
+        # Identifica los dispositivos con un número mayor de estados "desconocido"
         for mission, devices in events_analysis_data.items():
             for device_type, state_counts in devices.items():
                 unknown_count = state_counts.get('unknown', 0)
 
-                # Define a threshold to consider a device disconnected
+                # Define un umbral para considerar a un dispositivo desconectado
                 disconnection_threshold = 1
 
                 if unknown_count > disconnection_threshold:
-                    # Register the device as having a higher number of "unknown" states
+                    # Registra el dispositivo como teniendo un número mayor de estados "desconocido"
                     if mission not in disconnection_management_data:
                         disconnection_management_data[mission] = []
 
@@ -100,17 +123,20 @@ class ReportGenerator:
         return disconnection_management_data
 
     def consolidate_missions(self):
+        """
+        Consolida las misiones.
+        """
         consolidation_data = {}
 
-        # Call the analyze_events function to get event analysis data
+        # Llama a la función analyze_events para obtener los datos de análisis de eventos
         events_analysis_data = self.analyze_events()
 
-        # Count the number of non-operational devices in all missions.
+        # Cuenta el número de dispositivos no operativos en todas las misiones.
         for mission, devices in events_analysis_data.items():
             for device_type, state_counts in devices.items():
                 inoperable_count = state_counts.get('killed', 0) + state_counts.get('unknown', 0)
 
-                # Register the inoperative count for each device type in all missions.
+                # Registra el recuento inoperativo para cada tipo de dispositivo en todas las misiones.
                 if device_type not in consolidation_data:
                     consolidation_data[device_type] = 0
 
@@ -119,18 +145,21 @@ class ReportGenerator:
         return consolidation_data
 
     def calculate_percentages(self):
+        """
+        Calcula los porcentajes de los datos generados para cada dispositivo y misión.
+        """
         percentage_calculation_data = {}
 
-        # Call the analyze_events function to get event analysis data
+        # Llama a la función analyze_events para obtener los datos de análisis de eventos
         events_analysis_data = self.analyze_events()
 
-        # Calculate percentages of data generated for each device and mission
+        # Calcula los porcentajes de los datos generados para cada dispositivo y misión
         for mission, devices in events_analysis_data.items():
             for device_type, state_counts in devices.items():
                 total_events = sum(state_counts.values())
                 percentage_data = {state: count / total_events * 100 for state, count in state_counts.items()}
 
-                # Register the percentage data for each device type in each mission.
+                # Registra los datos de porcentaje para cada tipo de dispositivo en cada misión.
                 if mission not in percentage_calculation_data:
                     percentage_calculation_data[mission] = {}
 
@@ -139,11 +168,17 @@ class ReportGenerator:
                 return percentage_calculation_data
 
     def save_report(self, filename, report_data):
+        """
+        Guarda el informe generado en un archivo.
+        """
         filepath = os.path.join(self.reports_path, filename)
         with open(filepath, 'w') as file:
             json.dump(report_data, file)
 
     def move_processed_files_to_backup(self):
+        """
+        Mueve los archivos procesados a la copia de seguridad.
+        """
         files_to_move = glob.glob(os.path.join(self.devices_path, '*.log'))
         for file_path in files_to_move:
             filename = os.path.basename(file_path)
@@ -151,6 +186,9 @@ class ReportGenerator:
             shutil.move(file_path, dst_path)
 
     def generate_dashboard(self, analysis_data, cycle_id):
+        """
+        Genera el panel de control para el análisis de la simulación.
+        """
         dashboard_filename = 'Dashboard.md'
         dashboard_filepath = os.path.join(self.reports_path, dashboard_filename)
 
@@ -162,17 +200,29 @@ class ReportGenerator:
             self.write_percentages(dashboard_file, analysis_data['percentage_calculation'])
 
     def write_header(self, dashboard_file, cycle_id):
+        """
+        Escribe el encabezado del panel de control.
+        """
         dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
 
     def write_table_header(self, dashboard_file, headers):
+        """
+        Escribe el encabezado de una tabla en el panel de control.
+        """
         dashboard_file.write(
             "<tr>" + "".join([f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n")
 
     def write_table_row(self, dashboard_file, row_data):
+        """
+        Escribe una fila de una tabla en el panel de control.
+        """
         dashboard_file.write(
             "<tr>" + "".join([f"<td style='border: 2px solid black;'>{data}</td>" for data in row_data]) + "</tr>\n")
 
     def write_events_analysis(self, dashboard_file, events_analysis_data):
+        """
+        Escribe la sección de análisis de eventos del panel de control.
+        """
         dashboard_file.write("\n## Análisis de Eventos\n")
         dashboard_file.write(
             "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
@@ -184,6 +234,9 @@ class ReportGenerator:
         dashboard_file.write("</table>\n")
 
     def write_disconnection_management(self, dashboard_file, disconnection_management_data):
+        """
+        Escribe la sección de gestión de desconexiones del panel de control.
+        """
         dashboard_file.write("\n## Gestión de Desconexiones\n")
         dashboard_file.write(
             "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
@@ -194,6 +247,9 @@ class ReportGenerator:
         dashboard_file.write("</table>\n")
 
     def write_consolidation(self, dashboard_file, consolidation_data):
+        """
+        Escribe la sección de consolidación de misiones del panel de control.
+        """
         dashboard_file.write("\n## Consolidación de Misiones\n")
         dashboard_file.write(
             "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
@@ -203,6 +259,9 @@ class ReportGenerator:
         dashboard_file.write("</table>\n")
 
     def write_percentages(self, dashboard_file, percentage_calculation_data):
+        """
+        Escribe la sección de porcentajes del panel de control.
+        """
         dashboard_file.write("\n## Porcentajes\n")
         dashboard_file.write(
             "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
@@ -214,29 +273,44 @@ class ReportGenerator:
         dashboard_file.write("</table>\n")
 
     def generate_events_section(self, data):
+        """
+        Genera la sección de análisis de eventos del panel de control.
+        """
         headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]
         rows = [[mission, device_type, state, count] for mission, devices in data.items() for
                 device_type, state_counts in devices.items() for state, count in state_counts.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_disconnection_section(self, data):
+        """
+        Genera la sección de gestión de desconexiones del panel de control.
+        """
         headers = ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"]
         rows = [[mission, device_type, count] for mission, devices in data.items() for device in devices for
                 device_type, count in device.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_consolidation_section(self, data):
+        """
+        Genera la sección de consolidación de misiones del panel de control.
+        """
         headers = ["Tipo de Dispositivo", "Cantidad de Dispositivos"]
         rows = [[device_type, count] for device_type, count in data.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_percentages_section(self, data):
+        """
+        Genera la sección de porcentajes del panel de control.
+        """
         headers = ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"]
         rows = [[mission, device_type, state, percentage] for mission, devices in data.items() for
                 device_type, percentages in devices.items() for state, percentage in percentages.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_html_table(self, headers, rows):
+        """
+        Genera una tabla HTML a partir de los encabezados y filas proporcionados.
+        """
         html = "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n"
         html += "<tr>" + "".join(
             [f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n"

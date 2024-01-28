@@ -2,12 +2,23 @@
 import json
 import os
 
-
 class ControlDashboard:
+    """
+    Esta clase representa el panel de control de la simulación de Apollo 11.
+    Se encarga de leer los archivos de reporte y generar el panel de control correspondiente.
+    """
+
     def __init__(self, report_path):
+        """
+        Inicializa el panel de control con la ruta al directorio de reportes.
+        """
         self.report_path = report_path
 
     def display_dashboard(self):
+        """
+        Muestra el panel de control. Lee todos los archivos de reporte en el directorio de reportes
+        y genera un panel de control para cada archivo de reporte.
+        """
         report_files = [files for files in os.listdir(self.report_path) if files.endswith(".json")]
 
         for report_file in report_files:
@@ -18,6 +29,9 @@ class ControlDashboard:
             self.create_dashboard(report_data, report_file)
 
     def create_dashboard(self, data, filename):
+        """
+        Crea un panel de control para los datos del reporte dado.
+        """
         dashboard_filename = f'{filename}_dashboard.txt'
         dashboard_filepath = os.path.join(self.report_path, dashboard_filename)
 
@@ -27,6 +41,9 @@ class ControlDashboard:
                 dashboard_file.write(f"{key}: {value}\n")
 
     def generate_dashboard(self, analysis_data, cycle_id):
+        """
+        Genera un panel de control para el análisis de la simulación.
+        """
         dashboard_filename = 'Dashboard.md'
         dashboard_filepath = os.path.join(self.report_path, dashboard_filename)
 
@@ -46,29 +63,44 @@ class ControlDashboard:
                 dashboard_file.write(generate_section(data))
 
     def generate_events_section(self, data):
+        """
+        Genera la sección de análisis de eventos del panel de control.
+        """
         headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]
         rows = [[mission, device_type, state, count] for mission, devices in data.items() for device_type, state_counts
                 in devices.items() for state, count in state_counts.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_disconnection_section(self, data):
+        """
+        Genera la sección de gestión de desconexiones del panel de control.
+        """
         headers = ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"]
         rows = [[mission, device_type, count] for mission, devices in data.items() for device in devices for
                 device_type, count in device.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_consolidation_section(self, data):
+        """
+        Genera la sección de consolidación de misiones del panel de control.
+        """
         headers = ["Tipo de Dispositivo", "Cantidad de Dispositivos"]
         rows = [[device_type, count] for device_type, count in data.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_percentages_section(self, data):
+        """
+        Genera la sección de porcentajes del panel de control.
+        """
         headers = ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"]
         rows = [[mission, device_type, state, percentage] for mission, devices in data.items() for
                 device_type, percentages in devices.items() for state, percentage in percentages.items()]
         return self.generate_html_table(headers, rows)
 
     def generate_html_table(self, headers, rows):
+        """
+        Genera una tabla HTML a partir de los encabezados y filas proporcionados.
+        """
         html = "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n"
         html += "<tr>" + "".join(
             [f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n"
