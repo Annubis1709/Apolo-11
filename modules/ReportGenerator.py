@@ -144,6 +144,7 @@ class ReportGenerator:
     Esta clase representa el generador de informes de la simulación de Apollo 11.
     Se encarga de analizar los eventos, gestionar las desconexiones, consolidar las misiones y calcular los porcentajes.
     """
+
     def __init__(self, devices_path, backup_path, reports_path):
         """
         Inicializa el generador de informes con las rutas a los directorios de dispositivos, copias de seguridad y
@@ -162,7 +163,7 @@ class ReportGenerator:
         """
         Devuelve la ruta al archivo del panel de control.
         """
-        return os.path.join(self.reports_path, 'Dashboard.md')  # Changed to Markdown extension
+        return os.path.join(self.reports_path, 'Dashboard.md')  # Tablero de Control de visualizacióón de datos
 
     def generate_reports(self, cycle_id):
         """
