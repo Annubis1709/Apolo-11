@@ -30,6 +30,7 @@ class DataGenerator:
         if not os.path.exists(self.storage_path):
             os.makedirs(self.storage_path)
         self.device_types = ["Satélite", "Nave", "Traje", "Vehículo espacial"]
+        self.mission_codes = ["ORBONE", "CLNM", "TMRS", "GALXONE", "UNKN"] # test
 
     def generate_data_log(self, mission_code, cycle_id):
         """
@@ -41,6 +42,7 @@ class DataGenerator:
         num_files = random.randint(1, 100)
 
         for i in range(num_files):
+            mission_code = random.choice(self.mission_codes) # Test
             device_type = random.choice(self.device_types)  # Selecciona aleatoriamente un tipo de dispositivo
             device_status = random.choice(status_choices)
             data = {

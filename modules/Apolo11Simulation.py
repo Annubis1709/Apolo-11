@@ -5,6 +5,7 @@ import time
 import os
 import glob
 
+
 class Apolo11Simulation:
     """
     Esta clase representa la simulación de la misión Apollo 11.

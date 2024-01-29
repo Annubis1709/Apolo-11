@@ -2,6 +2,60 @@
 import json
 import os
 
+
+def generate_html_table(headers, rows):
+    """
+    Genera una tabla HTML a partir de los encabezados y filas proporcionados.
+    """
+    html = "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n"
+    html += "<tr>" + "".join(
+        [f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n"
+    html += "".join([f"<tr>" + "".join(
+        [f"<td style='border: 2px solid black;'>{row[i]}</td>" for i in range(len(row))]) + "</tr>\n" for row in
+                     rows])
+    html += "</table>\n"
+    return html
+
+
+def generate_percentages_section(data):
+    """
+    Genera la sección de porcentajes del panel de control.
+    """
+    headers = ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"]
+    rows = [[mission, device_type, state, percentage] for mission, devices in data.items() for
+            device_type, percentages in devices.items() for state, percentage in percentages.items()]
+    return generate_html_table(headers, rows)
+
+
+def generate_consolidation_section(data):
+    """
+    Genera la sección de consolidación de misiones del panel de control.
+    """
+    headers = ["Tipo de Dispositivo", "Cantidad de Dispositivos"]
+    rows = [[device_type, count] for device_type, count in data.items()]
+    return generate_html_table(headers, rows)
+
+
+def generate_disconnection_section(data):
+    """
+    Genera la sección de gestión de desconexiones del panel de control.
+    """
+    headers = ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"]
+    rows = [[mission, device_type, count] for mission, devices in data.items() for device in devices for
+            device_type, count in device.items()]
+    return generate_html_table(headers, rows)
+
+
+def generate_events_section(data):
+    """
+    Genera la sección de análisis de eventos del panel de control.
+    """
+    headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]
+    rows = [[mission, device_type, state, count] for mission, devices in data.items() for device_type, state_counts
+            in devices.items() for state, count in state_counts.items()]
+    return generate_html_table(headers, rows)
+
+
 class ControlDashboard:
     """
     Esta clase representa el panel de control de la simulación de Apollo 11.
@@ -51,61 +105,13 @@ class ControlDashboard:
             dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
 
             sections = [
-                ("Análisis de Eventos", self.generate_events_section, analysis_data['events_analysis']),
-                ("Gestión de Desconexiones", self.generate_disconnection_section,
+                ("Análisis de Eventos", generate_events_section, analysis_data['events_analysis']),
+                ("Gestión de Desconexiones", generate_disconnection_section,
                  analysis_data['disconnection_management']),
-                ("Consolidación de Misiones", self.generate_consolidation_section, analysis_data['consolidation']),
-                ("Porcentajes", self.generate_percentages_section, analysis_data['percentage_calculation'])
+                ("Consolidación de Misiones", generate_consolidation_section, analysis_data['consolidation']),
+                ("Porcentajes", generate_percentages_section, analysis_data['percentage_calculation'])
             ]
 
             for title, generate_section, data in sections:
                 dashboard_file.write(f"\n## {title}\n")
                 dashboard_file.write(generate_section(data))
-
-    def generate_events_section(self, data):
-        """
-        Genera la sección de análisis de eventos del panel de control.
-        """
-        headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]
-        rows = [[mission, device_type, state, count] for mission, devices in data.items() for device_type, state_counts
-                in devices.items() for state, count in state_counts.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_disconnection_section(self, data):
-        """
-        Genera la sección de gestión de desconexiones del panel de control.
-        """
-        headers = ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"]
-        rows = [[mission, device_type, count] for mission, devices in data.items() for device in devices for
-                device_type, count in device.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_consolidation_section(self, data):
-        """
-        Genera la sección de consolidación de misiones del panel de control.
-        """
-        headers = ["Tipo de Dispositivo", "Cantidad de Dispositivos"]
-        rows = [[device_type, count] for device_type, count in data.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_percentages_section(self, data):
-        """
-        Genera la sección de porcentajes del panel de control.
-        """
-        headers = ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"]
-        rows = [[mission, device_type, state, percentage] for mission, devices in data.items() for
-                device_type, percentages in devices.items() for state, percentage in percentages.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_html_table(self, headers, rows):
-        """
-        Genera una tabla HTML a partir de los encabezados y filas proporcionados.
-        """
-        html = "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n"
-        html += "<tr>" + "".join(
-            [f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n"
-        html += "".join([f"<tr>" + "".join(
-            [f"<td style='border: 2px solid black;'>{row[i]}</td>" for i in range(len(row))]) + "</tr>\n" for row in
-                         rows])
-        html += "</table>\n"
-        return html

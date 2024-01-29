@@ -6,6 +6,139 @@ import os
 import shutil
 
 
+def write_header(dashboard_file, cycle_id):
+    """
+    Escribe el encabezado del panel de control.
+    """
+    dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
+
+
+def write_table_header(dashboard_file, headers):
+    """
+    Escribe el encabezado de una tabla en el panel de control.
+    """
+    dashboard_file.write(
+        "<tr>" + "".join([f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n")
+
+
+def write_table_row(dashboard_file, row_data):
+    """
+    Escribe una fila de una tabla en el panel de control.
+    """
+    dashboard_file.write(
+        "<tr>" + "".join([f"<td style='border: 2px solid black;'>{data}</td>" for data in row_data]) + "</tr>\n")
+
+
+def write_events_analysis(dashboard_file, events_analysis_data):
+    """
+    Escribe la sección de análisis de eventos del panel de control.
+    """
+    dashboard_file.write("\n## Análisis de Eventos\n")
+    dashboard_file.write(
+        "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+    write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"])
+    for mission, devices in events_analysis_data.items():
+        for device_type, state_counts in devices.items():
+            for state, count in state_counts.items():
+                write_table_row(dashboard_file, [mission, device_type, state, str(count)])
+    dashboard_file.write("</table>\n")
+
+
+def write_disconnection_management(dashboard_file, disconnection_management_data):
+    """
+    Escribe la sección de gestión de desconexiones del panel de control.
+    """
+    dashboard_file.write("\n## Gestión de Desconexiones\n")
+    dashboard_file.write(
+        "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+    write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"])
+    for mission, disconnected_devices in disconnection_management_data.items():
+        for device in disconnected_devices:
+            write_table_row(dashboard_file, [mission, device['device_type'], str(device['unknown_count'])])
+    dashboard_file.write("</table>\n")
+
+
+def write_consolidation(dashboard_file, consolidation_data):
+    """
+    Escribe la sección de consolidación de misiones del panel de control.
+    """
+    dashboard_file.write("\n## Consolidación de Misiones\n")
+    dashboard_file.write(
+        "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+    write_table_header(dashboard_file, ["Tipo de Dispositivo", "Cantidad de Dispositivos"])
+    for device_type, count in consolidation_data.items():
+        write_table_row(dashboard_file, [device_type, str(count)])
+    dashboard_file.write("</table>\n")
+
+
+def write_percentages(dashboard_file, percentage_calculation_data):
+    """
+    Escribe la sección de porcentajes del panel de control.
+    """
+    dashboard_file.write("\n## Porcentajes\n")
+    dashboard_file.write(
+        "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
+    write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"])
+    for mission, devices in percentage_calculation_data.items():
+        for device_type, percentage_data in devices.items():
+            for state, percentage in percentage_data.items():
+                write_table_row(dashboard_file, [mission, device_type, state, f"{percentage:.2f}%"])
+    dashboard_file.write("</table>\n")
+
+
+def generate_html_table(headers, rows):
+    """
+    Genera una tabla HTML a partir de los encabezados y filas proporcionados.
+    """
+    html = "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n"
+    html += "<tr>" + "".join(
+        [f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n"
+    html += "".join([f"<tr>" + "".join(
+        [f"<td style='border: 2px solid black;'>{row[i]}</td>" for i in range(len(row))]) + "</tr>\n" for
+                     row in rows])
+    html += "</table>\n"
+    return html
+
+
+def generate_events_section(data):
+    """
+    Genera la sección de análisis de eventos del panel de control.
+    """
+    headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]
+    rows = [[mission, device_type, state, count] for mission, devices in data.items() for
+            device_type, state_counts in devices.items() for state, count in state_counts.items()]
+    return generate_html_table(headers, rows)
+
+
+def generate_disconnection_section(data):
+    """
+    Genera la sección de gestión de desconexiones del panel de control.
+    """
+    headers = ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"]
+    rows = [[mission, device_type, count] for mission, devices in data.items() for device in devices for
+            device_type, count in device.items()]
+    return generate_html_table(headers, rows)
+
+
+def generate_consolidation_section(data):
+    """
+    Genera la sección de consolidación de misiones del panel de control.
+    """
+    headers = ["Tipo de Dispositivo", "Cantidad de Dispositivos"]
+    rows = [[device_type, count] for device_type, count in data.items()]
+    return generate_html_table(headers, rows)
+
+
+def generate_percentages_section(data):
+    """
+    Genera la sección de porcentajes del panel de control.
+    """
+    headers = ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"]
+    rows = [[mission, device_type, state, percentage] for mission, devices in data.items() for
+            device_type, percentages in devices.items() for state, percentage in percentages.items()]
+    return generate_html_table(headers, rows)
+
+
 class ReportGenerator:
     """
     Esta clase representa el generador de informes de la simulación de Apollo 11.
@@ -13,8 +146,8 @@ class ReportGenerator:
     """
     def __init__(self, devices_path, backup_path, reports_path):
         """
-        Inicializa el generador de informes con las rutas a los directorios de dispositivos, copias de seguridad y reportes.
-        Crea los directorios de dispositivos, copias de seguridad y reportes si no existen.
+        Inicializa el generador de informes con las rutas a los directorios de dispositivos, copias de seguridad y
+        reportes. Crea los directorios de dispositivos, copias de seguridad y reportes si no existen.
         """
         self.devices_path = devices_path
         self.backup_path = backup_path
@@ -193,129 +326,8 @@ class ReportGenerator:
         dashboard_filepath = os.path.join(self.reports_path, dashboard_filename)
 
         with open(dashboard_filepath, 'a') as dashboard_file:
-            self.write_header(dashboard_file, cycle_id)
-            self.write_events_analysis(dashboard_file, analysis_data['events_analysis'])
-            self.write_disconnection_management(dashboard_file, analysis_data['disconnection_management'])
-            self.write_consolidation(dashboard_file, analysis_data['consolidation'])
-            self.write_percentages(dashboard_file, analysis_data['percentage_calculation'])
-
-    def write_header(self, dashboard_file, cycle_id):
-        """
-        Escribe el encabezado del panel de control.
-        """
-        dashboard_file.write(f"\n# Análisis para Ciclo {cycle_id}\n")
-
-    def write_table_header(self, dashboard_file, headers):
-        """
-        Escribe el encabezado de una tabla en el panel de control.
-        """
-        dashboard_file.write(
-            "<tr>" + "".join([f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n")
-
-    def write_table_row(self, dashboard_file, row_data):
-        """
-        Escribe una fila de una tabla en el panel de control.
-        """
-        dashboard_file.write(
-            "<tr>" + "".join([f"<td style='border: 2px solid black;'>{data}</td>" for data in row_data]) + "</tr>\n")
-
-    def write_events_analysis(self, dashboard_file, events_analysis_data):
-        """
-        Escribe la sección de análisis de eventos del panel de control.
-        """
-        dashboard_file.write("\n## Análisis de Eventos\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"])
-        for mission, devices in events_analysis_data.items():
-            for device_type, state_counts in devices.items():
-                for state, count in state_counts.items():
-                    self.write_table_row(dashboard_file, [mission, device_type, state, str(count)])
-        dashboard_file.write("</table>\n")
-
-    def write_disconnection_management(self, dashboard_file, disconnection_management_data):
-        """
-        Escribe la sección de gestión de desconexiones del panel de control.
-        """
-        dashboard_file.write("\n## Gestión de Desconexiones\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"])
-        for mission, disconnected_devices in disconnection_management_data.items():
-            for device in disconnected_devices:
-                self.write_table_row(dashboard_file, [mission, device['device_type'], str(device['unknown_count'])])
-        dashboard_file.write("</table>\n")
-
-    def write_consolidation(self, dashboard_file, consolidation_data):
-        """
-        Escribe la sección de consolidación de misiones del panel de control.
-        """
-        dashboard_file.write("\n## Consolidación de Misiones\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Tipo de Dispositivo", "Cantidad de Dispositivos"])
-        for device_type, count in consolidation_data.items():
-            self.write_table_row(dashboard_file, [device_type, str(count)])
-        dashboard_file.write("</table>\n")
-
-    def write_percentages(self, dashboard_file, percentage_calculation_data):
-        """
-        Escribe la sección de porcentajes del panel de control.
-        """
-        dashboard_file.write("\n## Porcentajes\n")
-        dashboard_file.write(
-            "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n")
-        self.write_table_header(dashboard_file, ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"])
-        for mission, devices in percentage_calculation_data.items():
-            for device_type, percentage_data in devices.items():
-                for state, percentage in percentage_data.items():
-                    self.write_table_row(dashboard_file, [mission, device_type, state, f"{percentage:.2f}%"])
-        dashboard_file.write("</table>\n")
-
-    def generate_events_section(self, data):
-        """
-        Genera la sección de análisis de eventos del panel de control.
-        """
-        headers = ["Misión", "Tipo de Dispositivo", "Estado", "Cantidad"]
-        rows = [[mission, device_type, state, count] for mission, devices in data.items() for
-                device_type, state_counts in devices.items() for state, count in state_counts.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_disconnection_section(self, data):
-        """
-        Genera la sección de gestión de desconexiones del panel de control.
-        """
-        headers = ["Misión", "Tipo de Dispositivo", "Cantidad de Desconexiones"]
-        rows = [[mission, device_type, count] for mission, devices in data.items() for device in devices for
-                device_type, count in device.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_consolidation_section(self, data):
-        """
-        Genera la sección de consolidación de misiones del panel de control.
-        """
-        headers = ["Tipo de Dispositivo", "Cantidad de Dispositivos"]
-        rows = [[device_type, count] for device_type, count in data.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_percentages_section(self, data):
-        """
-        Genera la sección de porcentajes del panel de control.
-        """
-        headers = ["Misión", "Tipo de Dispositivo", "Estado", "Porcentaje"]
-        rows = [[mission, device_type, state, percentage] for mission, devices in data.items() for
-                device_type, percentages in devices.items() for state, percentage in percentages.items()]
-        return self.generate_html_table(headers, rows)
-
-    def generate_html_table(self, headers, rows):
-        """
-        Genera una tabla HTML a partir de los encabezados y filas proporcionados.
-        """
-        html = "<table style='border-collapse: collapse; border: 2px solid black; text-align: center;'>\n"
-        html += "<tr>" + "".join(
-            [f"<th style='border: 2px solid black;'>{header}</th>" for header in headers]) + "</tr>\n"
-        html += "".join([f"<tr>" + "".join(
-            [f"<td style='border: 2px solid black;'>{row[i]}</td>" for i in range(len(row))]) + "</tr>\n" for
-                         row in rows])
-        html += "</table>\n"
-        return html
+            write_header(dashboard_file, cycle_id)
+            write_events_analysis(dashboard_file, analysis_data['events_analysis'])
+            write_disconnection_management(dashboard_file, analysis_data['disconnection_management'])
+            write_consolidation(dashboard_file, analysis_data['consolidation'])
+            write_percentages(dashboard_file, analysis_data['percentage_calculation'])
