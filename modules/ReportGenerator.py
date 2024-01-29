@@ -289,17 +289,15 @@ class ReportGenerator:
 
         # Calcula los porcentajes de los datos generados para cada dispositivo y misión
         for mission, devices in events_analysis_data.items():
+            total_events = sum(sum(device_states.values()) for device_states in devices.values())
+            mission_percentage_data = {}
             for device_type, state_counts in devices.items():
-                total_events = sum(state_counts.values())
-                percentage_data = {state: count / total_events * 100 for state, count in state_counts.items()}
+                device_percentage_data = {state: (count / total_events) * 100 for state, count in state_counts.items()}
+                mission_percentage_data[device_type] = device_percentage_data
 
-                # Registra los datos de porcentaje para cada tipo de dispositivo en cada misión.
-                if mission not in percentage_calculation_data:
-                    percentage_calculation_data[mission] = {}
+            percentage_calculation_data[mission] = mission_percentage_data
 
-                percentage_calculation_data[mission][device_type] = percentage_data
-
-                return percentage_calculation_data
+        return percentage_calculation_data
 
     def save_report(self, filename, report_data):
         """

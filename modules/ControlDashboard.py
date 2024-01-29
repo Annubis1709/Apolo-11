@@ -106,12 +106,14 @@ class ControlDashboard:
 
             sections = [
                 ("Análisis de Eventos", generate_events_section, analysis_data['events_analysis']),
-                ("Gestión de Desconexiones", generate_disconnection_section,
-                 analysis_data['disconnection_management']),
+                ("Gestión de Desconexiones", generate_disconnection_section, analysis_data['disconnection_management']),
                 ("Consolidación de Misiones", generate_consolidation_section, analysis_data['consolidation']),
                 ("Porcentajes", generate_percentages_section, analysis_data['percentage_calculation'])
             ]
 
             for title, generate_section, data in sections:
                 dashboard_file.write(f"\n## {title}\n")
-                dashboard_file.write(generate_section(data))
+                if title == "Porcentajes":
+                    dashboard_file.write(generate_section(data, include_total=True)) # Modificación aquí
+                else:
+                    dashboard_file.write(generate_section(data))
