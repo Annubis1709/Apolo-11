@@ -6,6 +6,20 @@ Este proyecto, denominado "Apolo-11", es una simulación desarrollada para la Ad
 
 El proyecto está organizado en una estructura de directorios que incluye los siguientes componentes principales:
 
+```
+Apolo-11
+├── Apolo-11
+│   └── modules
+│       ├── __init__.py
+│       ├── Apolo11Simulation.py
+│       ├── ControlDashboard.py
+│       ├── DataGenerator.py
+│       ├── FileManager.py
+│       └── ReportGenerator.py
+└── apolo-11.py
+```
+
+
 - **apolo-11.py**: Punto de entrada del programa que inicia la simulación y muestra el tablero de control.
 - **modules**:
   - **Apolo11Simulation.py**: Contiene la clase `Apolo11Simulation` para simular la generación de datos y ejecutar el ciclo de simulación.

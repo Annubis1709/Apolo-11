@@ -27,11 +27,11 @@ class FileManager:
 
     def move_to_backup(self, filename):
         """
-        Mueve un archivo procesado a la copia de seguridad.
+        Mueve un archivo procesado al directorio buckups.
         """
         src_path = os.path.join(self.devices_path, filename)
         dst_path = os.path.join(self.backup_path, filename)
         try:
             shutil.move(src_path, dst_path)
         except Exception as e:
-            logging.error(f"No se pudo mover el archivo {filename} al directorio de copia de seguridad: {e}")
+            logging.error(f"No se pudo mover el archivo {filename} al directorio buckups: {e}")
