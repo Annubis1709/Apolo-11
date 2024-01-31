@@ -34,4 +34,4 @@ class FileManager:
         try:
             shutil.move(src_path, dst_path)
         except Exception as e:
-            logging.error(f"No se pudo mover el archivo {filename} al directorio buckups: {e}")
+            logging.error(f"No se pudo mover el archivo {filename} al directorio backups: {e}")
